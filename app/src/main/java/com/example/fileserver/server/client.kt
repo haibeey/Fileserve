@@ -55,6 +55,7 @@ class clientHandler{
     }
 
     private fun parseReq(request : ByteArray) : ByteArray{
+
         val requeststr = request.toString(Charsets.UTF_8).trim()
         val line = requeststr.split("\r|\n")[0].trim()
 
@@ -62,7 +63,7 @@ class clientHandler{
         val headers = mutableListOf<ByteArray>()
 
         var resource = (if (baseFilePath!=null ) baseFilePath else "/sdcard") + methodresource[1]
-        if (!methodresource[1].trim().equals("/")){
+        if (methodresource[1].trim() != "/"){
             resource = methodresource[1].trim()
         }
 
@@ -108,17 +109,14 @@ class clientHandler{
     private  fun getFIle(filepath : String) : ByteArray{
         try {
             val f = File(filepath)
-            Log.e("THERESOURCEC",filepath)
             if (f.isDirectory){
                 if (f.listFiles()!=null){
-                    Log.e("THERESOURCEC",filepath)
                     return buildHtml(f.listFiles()?.map { it.absolutePath },filepath)
                 }
 
             }
             return f.readBytes()
         }catch (e:IOException){
-            Log.e("LETS",e.toString())
             return "File Not Found ".toByteArray()
         }
     }
@@ -167,7 +165,7 @@ class clientHandler{
 
         var toAdd = ""
         filespath?.map {
-            toAdd= toAdd+"<li><a href=$it>$it</a></li>\n"
+            toAdd= toAdd+"<li><a href='$it'>$it</a></li>\n"
         }
         return (startString+toAdd+endString).toByteArray(Charsets.UTF_8)
     }

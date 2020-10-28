@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -9,4 +9,16 @@
         tools:showIn="@layout/activity_main"
         tools:context=".MainActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:id="@+id/start_button"
+            android:textSize="30sp"
+            android:text="@string/serving"
+            android:layout_gravity="center"
+            android:layout_margin="50dp"
+            android:background="@drawable/ic_circular"/>
+
+</LinearLayout>

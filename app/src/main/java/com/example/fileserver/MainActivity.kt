@@ -9,9 +9,14 @@ import  android.Manifest.permission.*
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
 
 import androidx.annotation.RequiresApi
+import com.google.android.material.button.MaterialButton
+import java.net.InetAddress
+import java.net.NetworkInterface
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,9 +29,36 @@ class MainActivity : AppCompatActivity() {
         requestPermission(READ_EXTERNAL_STORAGE,3434);
         requestPermission(INTERNET,1000)
 
+        val img = findViewById<MaterialButton>(R.id.start_button)
+        img.text = "Serving a http  server on ${getDeviceIpAddress()}:6646"
+        val scaleDown = AnimationUtils.loadAnimation(
+            applicationContext,
+            R.anim.beacon
+        )
+        scaleDown.repeatCount = Animation.INFINITE
+        scaleDown.duration =5000
+        img.startAnimation(scaleDown)
+
         startService(Intent(this,ServerService::class.java))
     }
 
+    fun getDeviceIpAddress():String{
+        val networkInterfaces = NetworkInterface.getNetworkInterfaces()
+        var networkInterface : NetworkInterface
+        var inetAddress : InetAddress
+        while (networkInterfaces.hasMoreElements()){
+            networkInterface = networkInterfaces.nextElement()
+            val inetAddresses = networkInterface.inetAddresses
+            while (inetAddresses.hasMoreElements()){
+                inetAddress = inetAddresses.nextElement()
+                if (!inetAddress.isLoopbackAddress && inetAddress.hostAddress.indexOf(":")<0){
+                    if (!inetAddress.hostAddress.startsWith("192"))continue
+                    return  inetAddress.hostAddress
+                }
+            }
+        }
+        return  "0.0.0.0"
+    }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
