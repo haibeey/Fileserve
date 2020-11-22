@@ -1,6 +1,7 @@
 package com.example.fileserver.server
 
 
+import android.util.Log
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -23,16 +24,18 @@ class Server {
     }
 
     fun listenAndServe(){
-        GlobalScope.launch {
+        Thread{
             while (isAccepting){
                 val c = server.accept()
-                async { handleRequest(c) }
+                Log.e("new connection","new conection ${c}")
+                Thread{
+                    handleRequest(c)
+                }.start()
             }
-        }
-
+        }.start()
     }
 
-    fun handleRequest(c: Socket){
+    private fun handleRequest(c: Socket){
         clientHandler().clientHandler(c,basefilepath)
     }
 

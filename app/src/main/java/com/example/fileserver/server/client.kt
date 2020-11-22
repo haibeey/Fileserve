@@ -4,7 +4,12 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
+import java.lang.Exception
 import java.net.Socket
+import java.net.URLDecoder
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
 import java.util.*
 
 
@@ -21,13 +26,34 @@ class clientHandler{
         this.starttime =  System.currentTimeMillis()
         baseFilePath = bfilePath
         onduty = true
-        write(parseReq((read())))
-        shutdown()
+        val responses = parseReq((read()))
+        try {
+            write(responses.first,responses.second)
+            shutdown()
+        }catch (E :Exception){}
+
     }
 
-    private fun write(message: ByteArray) {
+    private fun write(header: InputStream,body :InputStream) {
         if (client.isConnected){
-            client.getOutputStream().write(message)
+            val sendArr =  ByteBuffer.allocate(10000000).array()
+            var stream = header
+            var sendSize = stream.read(sendArr)
+            var change = 0
+            val outStream = client.getOutputStream()
+            while (sendSize>0){
+                outStream.write(
+                    sendArr.sliceArray(0 until sendSize)
+                )
+                sendSize = stream.read(sendArr)
+                if (sendSize<=0){
+                    if (change<=0){
+                        change =1
+                        stream = body
+                        sendSize = stream.read(sendArr)
+                    }
+                }
+            }
         }
     }
 
@@ -52,9 +78,12 @@ class clientHandler{
     private fun shutdown() {
         onduty= false
         println("${client.inetAddress.hostAddress} closed the connection")
+        Thread.sleep(100)
+        client.close()
     }
 
-    private fun parseReq(request : ByteArray) : ByteArray{
+
+    private fun parseReq(request : ByteArray) : Pair<InputStream,InputStream>{
 
         val requeststr = request.toString(Charsets.UTF_8).trim()
         val line = requeststr.split("\r|\n")[0].trim()
@@ -66,63 +95,77 @@ class clientHandler{
         if (methodresource[1].trim() != "/"){
             resource = methodresource[1].trim()
         }
-
+        resource  = URLDecoder.decode(resource,"UTF-8")
         if (methodresource.count()<3){
             headers.add("HTTP/1.0 400 Not OK".toByteArray(Charsets.UTF_8))
-            return response(400,"Invalid Request".toByteArray(Charsets.UTF_8),headers,resource)
+            return Pair(
+                response(headers,resource).inputStream(),
+                "Invalid Request".toByteArray(Charsets.UTF_8).inputStream()
+            )
         }
 
         if (!methodresource[0].equals("GET")){
             headers.add("HTTP/1.0 400 Not OK".toByteArray())
-            return response(400,"Method not Allowed".toByteArray(Charsets.UTF_8),headers,resource)
+            return Pair(
+                response(headers,resource).inputStream(),
+                "Method not Allowed".toByteArray(Charsets.UTF_8).inputStream()
+            )
         }
 
         val response = getFIle(resource)
 
-        if (response.size<=0){
-            headers.add("HTTP/1.0 400 Not OK".toByteArray(Charsets.UTF_8))
-            return response(400,response,headers,resource)
-        }
         if (response.toString().equals("File Not Found")){
             headers.add("HTTP/1.0 400 File not found".toByteArray(Charsets.UTF_8))
-            return response(404,response,headers,resource)
+            return Pair(
+                response(headers,resource).inputStream(),
+                "".toByteArray(Charsets.UTF_8).inputStream()
+            )
         }
         headers.add("HTTP/1.0 200 OK".toByteArray(Charsets.UTF_8))
-        return response(200,response,headers,resource)
+        headers.add("Connection: Keep-Alive".toByteArray(Charsets.UTF_8))
+        headers.add("Keep-Alive: timeout=5000, max=1".toByteArray(Charsets.UTF_8))
+        return Pair(response(headers,resource).inputStream(),response)
     }
 
-    private fun response(code : Int,body: ByteArray,headers : MutableList<ByteArray>,resource : String): ByteArray{
+    private fun response(headers : MutableList<ByteArray>,resource : String): ByteArray{
         headers.add("Server: FileServer/0.1 Kotlin".toByteArray(Charsets.UTF_8)) // lmao? what is this. Did i just invented this
         headers.add(("Date: "+ Calendar.getInstance().time.toString()).toByteArray(Charsets.UTF_8))
         headers.add(("Content-Type: "+getMimeType(resource)).toByteArray(Charsets.UTF_8))
-        headers.add(("Content-Length: "+body.size).toByteArray(Charsets.UTF_8))
         headers.add("Cache-Control: no-store".toByteArray(Charsets.UTF_8))
 
         var finalresponse = headers.reduce { acc, bytes -> acc+bytes+"\n".toByteArray(Charsets.UTF_8) }
 
         finalresponse=finalresponse.plus("\n".toByteArray())
-        finalresponse=finalresponse.plus(body)
 
         return finalresponse
     }
 
-    private  fun getFIle(filepath : String) : ByteArray{
+    private  fun getFIle(filepath : String) : InputStream{
         try {
             val f = File(filepath)
             if (f.isDirectory){
                 if (f.listFiles()!=null){
-                    return buildHtml(f.listFiles()?.map { it.absolutePath },filepath)
+                    return buildHtml(f.listFiles()?.map { it.absolutePath },filepath).inputStream()
                 }
-
             }
-            return f.readBytes()
+            return f.inputStream()
         }catch (e:IOException){
-            return "File Not Found ".toByteArray()
+            Log.e("na wa oh",e.toString())
+            return "File Not Found ".toByteArray().inputStream()
         }
     }
 
-    fun getMimeType(filepath : String) :String{
-        var file : File
+    private fun getFileSize(filepath: String):Long{
+        return try {
+            val f = File(filepath)
+            f.length()
+        }catch (e:IOException){
+            0
+        }
+    }
+
+    private fun getMimeType(filepath : String) :String{
+        val file : File
         try {
             file = File(filepath)
         }catch (e:IOException){
@@ -132,11 +175,8 @@ class clientHandler{
             return  "text/html;charset=utf-8"
         }
         val ext = MimeTypeMap.getFileExtensionFromUrl(file.toURI().toString())
-        if (ext == null){
-            return "text/html;charset=utf-8"
-        }
-        val type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
-        return  if ( type ==null)  "text/html;charset=utf-8" else type
+            ?: return "text/html;charset=utf-8"
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext) ?: "text/html;charset=utf-8"
     }
 
     /*
@@ -165,7 +205,7 @@ class clientHandler{
 
         var toAdd = ""
         filespath?.map {
-            toAdd= toAdd+"<li><a href='$it'>$it</a></li>\n"
+            toAdd= "$toAdd<li><a href='$it'>$it</a></li>\n"
         }
         return (startString+toAdd+endString).toByteArray(Charsets.UTF_8)
     }
