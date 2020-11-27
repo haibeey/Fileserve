@@ -27,10 +27,13 @@ class clientHandler{
         baseFilePath = bfilePath
         onduty = true
         val responses = parseReq((read()))
+
         try {
             write(responses.first,responses.second)
             shutdown()
-        }catch (E :Exception){}
+        }catch (E :Exception){
+
+        }
 
     }
 
@@ -77,7 +80,6 @@ class clientHandler{
 
     private fun shutdown() {
         onduty= false
-        println("${client.inetAddress.hostAddress} closed the connection")
         Thread.sleep(100)
         client.close()
     }
@@ -123,7 +125,9 @@ class clientHandler{
         }
         headers.add("HTTP/1.0 200 OK".toByteArray(Charsets.UTF_8))
         headers.add("Connection: Keep-Alive".toByteArray(Charsets.UTF_8))
-        headers.add("Keep-Alive: timeout=5000, max=1".toByteArray(Charsets.UTF_8))
+        if (isFile(resource)){
+            headers.add(("Content-Length: "+getFileSize(resource)).toByteArray(Charsets.UTF_8))
+        }
         return Pair(response(headers,resource).inputStream(),response)
     }
 
@@ -150,8 +154,15 @@ class clientHandler{
             }
             return f.inputStream()
         }catch (e:IOException){
-            Log.e("na wa oh",e.toString())
             return "File Not Found ".toByteArray().inputStream()
+        }
+    }
+
+    private fun isFile(filepath : String): Boolean{
+        return try {
+            File(filepath).isFile
+        }catch (e:IOException){
+            false
         }
     }
 

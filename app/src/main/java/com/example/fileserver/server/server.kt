@@ -1,12 +1,9 @@
 package com.example.fileserver.server
 
 
-import android.util.Log
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.lang.Exception
 import java.net.ServerSocket
 import java.net.Socket
@@ -16,7 +13,7 @@ class Server {
     var isAccepting = true
     var port: Int = 6646
 
-    val server: ServerSocket = ServerSocket(port)
+    private val server: ServerSocket = ServerSocket(port)
     lateinit var basefilepath : String
 
     fun baseFilePath(filepath :String){
@@ -24,15 +21,26 @@ class Server {
     }
 
     fun listenAndServe(){
-        Thread{
-            while (isAccepting){
-                val c = server.accept()
-                Log.e("new connection","new conection ${c}")
-                Thread{
-                    handleRequest(c)
-                }.start()
+        try {
+            Thread{
+                while (isAccepting){
+                    val c = server.accept()
+                    c.keepAlive = true
+                    Thread{
+                        handleRequest(c)
+                    }.start()
+                }
+            }.start()
+
+            GlobalScope.launch {
+                val ticker = ticker(delayMillis = 1000, initialDelayMillis = 0)
+                for (event in ticker){
+
+                }
             }
-        }.start()
+        }catch (e : Exception){}
+
+
     }
 
     private fun handleRequest(c: Socket){

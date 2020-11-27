@@ -1,19 +1,23 @@
 package com.example.fileserver
 
 import android.Manifest
-import androidx.appcompat.app.AppCompatActivity;
+import android.Manifest.permission.INTERNET
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
-import androidx.core.app.ActivityCompat
-import  android.Manifest.permission.*
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import androidx.core.content.ContextCompat
-
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -21,6 +25,7 @@ import java.net.NetworkInterface
 
 class MainActivity : AppCompatActivity() {
 
+    private var service: ServerService? = null
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         startService(Intent(this,ServerService::class.java))
     }
 
-    fun getDeviceIpAddress():String{
+    private fun getDeviceIpAddress():String{
         val networkInterfaces = NetworkInterface.getNetworkInterfaces()
         var networkInterface : NetworkInterface
         var inetAddress : InetAddress
@@ -75,19 +80,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun  requestPermission(permissionType : String,permissionReqCode: Int): Boolean{
+    private fun  requestPermission(permissionType : String, permissionReqCode: Int): Boolean{
 
         if (ContextCompat.checkSelfPermission(this,
                 permissionType)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     permissionType)) {
                 //TODO show permission dialogue
             } else {
-                // No explanation needed; request the permission
-                if (permissionType.equals(Manifest.permission.SYSTEM_ALERT_WINDOW)){
+                if (permissionType == Manifest.permission.SYSTEM_ALERT_WINDOW){
                 }else{
                     ActivityCompat.requestPermissions(this,
                         arrayOf(permissionType), permissionReqCode);
