@@ -1,0 +1,294 @@
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  outline: 0;
+  border: 0;
+  text-decoration: none;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-size: 1.6rem;
+}
+
+.container {
+  padding: 1rem 1.5rem;
+  margin: 0;
+  background-color: rgba(64, 191, 128, 0.7);
+}
+
+/*
+    Header
+*/
+.header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  background-color: #40bf80;
+  padding: 1rem;
+  border-radius: .3rem;
+  color: white;
+  -webkit-box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.header a.header__logo {
+  font-size: 3rem;
+  color: white;
+}
+
+.header .header__logo {
+  font-weight: normal;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  color: #1a4d33;
+}
+
+/*
+    Jumbotron
+*/
+.jumbotron {
+  margin: 1rem 0 0;
+  border-radius: .5rem .5rem 0 0;
+  padding: 2rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  height: 30vh;
+  background-color: #40bf80;
+}
+
+.jumbotron__text {
+  font-size: 3rem;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  color: #0d261a;
+}
+
+.jumbotron__sub-text {
+  font-size: 1.5rem;
+  margin: 0 3rem 0;
+  -ms-flex-item-align: end;
+      align-self: flex-end;
+  font-weight: normal;
+  color: white;
+  opacity: .7;
+}
+
+/*
+    Layout
+*/
+.row {
+  padding: 2rem 1rem;
+}
+
+.row [class^="col-"] {
+  margin: 1.3rem 0;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    padding: 2rem 10rem;
+  }
+  .header {
+    padding: 2rem;
+    -webkit-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.5);
+            box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.5);
+  }
+  .jumbotron {
+    margin: 1rem 0 0;
+    border-radius: 1rem 1rem 0 0;
+    z-index: -1;
+    height: 70vh;
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 80%, 30% 100%, 0 80%);
+            clip-path: polygon(0 0, 100% 0, 100% 80%, 30% 100%, 0 80%);
+  }
+  .jumbotron__text {
+    letter-spacing: .7rem;
+    font-size: 10rem;
+  }
+  .jumbotron__sub-text {
+    font-size: 2.5rem;
+    margin: 0 20rem 0 0;
+  }
+  .row {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    -ms-flex-line-pack: justify;
+        align-content: space-between;
+    /*
+        [class^="col-"]:not(:last-of-type) {
+            margin: 0 0rem 0 0;
+        } */
+  }
+  .row--middle {
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+  }
+  .row .col-1 {
+    width: calc(calc(100% / 12) - 1rem);
+  }
+  .row .col-2 {
+    width: calc(calc(100% / 6) - 1rem);
+  }
+  .row .col-3 {
+    width: calc(calc(100% / 4) - 1rem);
+  }
+  .row .col-4 {
+    width: calc(calc(100% / 3) - 1rem);
+  }
+  .row .col-5 {
+    width: calc(calc(100% / 2.4) - 1rem);
+  }
+  .row .col-6 {
+    width: calc(calc(100% / 2) - 1rem);
+  }
+  .row .col-7 {
+    width: calc(calc(100% / 1.7) - 1rem);
+  }
+  .row .col-8 {
+    width: calc(calc(100% / 1.5) - 1rem);
+  }
+  .row .col-9 {
+    width: calc(calc(100% / 1.3) - 1rem);
+  }
+  .row .col-10 {
+    width: calc(calc(100% / 1.2) - 1rem);
+  }
+  .row .col-11 {
+    width: calc(calc(100% / 1.1) - 1rem);
+  }
+  .row .col-12 {
+    width: 100%;
+  }
+  .row [class^="col-"] {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    margin: 0 .5rem 2rem;
+  }
+  .clipped {
+    margin: -17rem 0 0;
+  }
+}
+
+/*
+    Btns
+*/
+.btn {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 1.3rem 1rem;
+  width: 100%;
+  border-radius: .3rem;
+  background-color: #1a4d33;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.6rem;
+  cursor: pointer;
+  -webkit-transition: .3s ease-in-out;
+  transition: .3s ease-in-out;
+}
+
+.btn:hover {
+  opacity: .9;
+}
+
+/* 
+    Card
+*/
+.card {
+  display: block;
+  background-color: #53c68c;
+  border-radius: .5rem;
+  cursor: pointer;
+  -webkit-box-shadow: 3px 3px 3px #2d8659;
+          box-shadow: 3px 3px 3px #2d8659;
+  -webkit-transform: scale(0.9);
+          transform: scale(0.9);
+  -webkit-transition: -webkit-transform .3s ease-in-out;
+  transition: -webkit-transform .3s ease-in-out;
+  transition: transform .3s ease-in-out;
+  transition: transform .3s ease-in-out, -webkit-transform .3s ease-in-out;
+}
+
+.card:hover {
+  -webkit-transform: scale(1);
+          transform: scale(1);
+}
+
+.card--no-scale {
+  cursor: auto;
+  -webkit-transform: scale(1);
+          transform: scale(1);
+}
+
+.card__img {
+  height: 20rem;
+  display: block;
+}
+
+.card__body {
+  padding: 2rem;
+}
+
+.card__title {
+  color: #1a4d33;
+  font-size: 2rem;
+  margin: 0 0 .2rem;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.card__text {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  opacity: .5;
+  font-weight: 600;
+}
+
+.card__btn {
+  margin: 2.5rem 0 0;
+  -webkit-transform: translateY(-5px);
+          transform: translateY(-5px);
+  -webkit-box-shadow: 0 3px 3px rgba(26, 77, 51, 0.7);
+          box-shadow: 0 3px 3px rgba(26, 77, 51, 0.7);
+}
+
+.card__btn:active {
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  -webkit-transform: translateY(0);
+          transform: translateY(0);
+}
+/*# sourceMappingURL=main.css.map */
